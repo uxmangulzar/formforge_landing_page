@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
-import { Smartphone, Camera, Activity, Sparkles, Trophy, Shield, Gamepad2, TrendingUp, Zap, Mic2, ChevronDown, Plus, Minus, Mail, Target, Loader2, UserPlus, Search, Award, X, Clipboard, Share2, Crown, Medal } from 'lucide-react'
+import { Smartphone, Camera, Activity, Sparkles, Trophy, Shield, Gamepad2, TrendingUp, Zap, Mic2, ChevronDown, Plus, Minus, Mail, Target, Loader2, UserPlus, Search, Award, X, Clipboard, Share2, Crown, Medal, Twitter, Linkedin, Facebook } from 'lucide-react'
 import api from '@/utils/api'
 import { toast } from 'sonner'
 
@@ -225,7 +225,7 @@ export default function FormForgeAILandingPage() {
   const faqs = [
     {
       q: 'Do I need equipment?',
-      a: 'No. FormForge AI works using only your smartphone camera.',
+      a: 'No. Repvio Fit AI works using only your smartphone camera.',
     },
     {
       q: 'Does it work on iPhone and Android?',
@@ -237,7 +237,7 @@ export default function FormForgeAILandingPage() {
     },
     {
       q: 'Can beginners use it?',
-      a: 'Absolutely. FormForge AI is designed to help beginners train with confidence.',
+      a: 'Absolutely. Repvio Fit AI is designed to help beginners train with confidence.',
     },
     {
       q: 'Is it good for home workouts?',
@@ -265,7 +265,7 @@ export default function FormForgeAILandingPage() {
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/10 bg-black/60">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
           <div className="text-xl font-black tracking-tight">
-            FormForge <span className="text-green-400">AI</span>
+            Repvio <span className="text-green-400">Fit</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
@@ -298,7 +298,7 @@ export default function FormForgeAILandingPage() {
             <iframe
               className="w-full h-full"
               src="https://www.youtube.com/embed/yGzF92X8x8M?autoplay=1"
-              title="FormForge AI Demo"
+              title="Repvio Fit AI Demo"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -614,7 +614,7 @@ export default function FormForgeAILandingPage() {
               <div className="relative z-10 mt-10 h-64 sm:h-72 rounded-3xl bg-black border border-white/5 overflow-hidden group-hover:border-green-400/30 transition-colors duration-700 shadow-inner">
                 {/* Visual Background */}
                 <img src={feature.img} alt={feature.title} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700" />
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.08),transparent_70%)]" />
 
@@ -1182,28 +1182,37 @@ export default function FormForgeAILandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-20">
             <div className="lg:col-span-2">
               <div className="text-2xl font-black tracking-tighter mb-6">
-                FormForge <span className="text-green-400">AI</span>
+                Repvio <span className="text-green-400">Fit</span>
               </div>
               <p className="text-white/40 text-lg leading-relaxed max-w-sm mb-8">
                 The world's most advanced AI-powered movement coaching platform. Professional form analysis using only your phone.
               </p>
               <div className="flex gap-4">
-                {/* Social Placeholder Icons can go here */}
-                <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/20 hover:text-green-400 transition-colors cursor-pointer hover:border-green-400/30">
-                  <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                </div>
-                <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/20 hover:text-green-400 transition-colors cursor-pointer hover:border-green-400/30">
-                  <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                </div>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-green-400 transition-all hover:border-green-400/30 hover:-translate-y-1">
+                  <Twitter size={18} />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-green-400 transition-all hover:border-green-400/30 hover:-translate-y-1">
+                  <Linkedin size={18} />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-green-400 transition-all hover:border-green-400/30 hover:-translate-y-1">
+                  <Facebook size={18} />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-green-400 transition-all hover:border-green-400/30 hover:-translate-y-1">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.5 13.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm-4.5 0c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm9 0c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5 2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5zm-4.5-9c-3.314 0-6 2.686-6 6 0 .341.028.675.083 1 .15.894.49 1.714.977 2.41 1.05 1.503 2.872 2.59 4.94 2.59s3.89-1.087 4.94-2.59c.487-.696.827-1.516.977-2.41.055-.325.083-.659.083-1 0-3.314-2.686-6-6-6z"/>
+                  </svg>
+                </a>
               </div>
             </div>
 
             <div>
               <div className="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6">Social</div>
               <ul className="space-y-4 text-white/40 text-sm font-medium">
-                <li className="hover:text-green-400 transition-colors cursor-pointer">TikTok</li>
+                <li className="hover:text-green-400 transition-colors cursor-pointer">Twitter (X)</li>
+                <li className="hover:text-green-400 transition-colors cursor-pointer">LinkedIn</li>
+                <li className="hover:text-green-400 transition-colors cursor-pointer">Facebook</li>
+                <li className="hover:text-green-400 transition-colors cursor-pointer">Reddit</li>
                 <li className="hover:text-green-400 transition-colors cursor-pointer">Instagram</li>
-                <li className="hover:text-green-400 transition-colors cursor-pointer">YouTube</li>
               </ul>
             </div>
 
@@ -1218,7 +1227,7 @@ export default function FormForgeAILandingPage() {
             <div>
               <div className="text-white font-bold text-xs uppercase tracking-[0.2em] mb-6">Contact</div>
               <ul className="space-y-4 text-white/40 text-sm font-medium mb-8">
-                <li className="hover:text-green-400 transition-colors cursor-pointer">hello@formforge.ai</li>
+                <li className="hover:text-green-400 transition-colors cursor-pointer">hello@repviofit.ai</li>
               </ul>
               <a href="#waitlist" className="inline-flex items-center justify-center bg-green-400 text-black px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] whitespace-nowrap">
                 Join Waitlist
