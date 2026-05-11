@@ -1199,7 +1199,7 @@ export default function FormForgeAILandingPage() {
                 </a>
                 <a href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-green-400 transition-all hover:border-green-400/30 hover:-translate-y-1">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.5 13.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm-4.5 0c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm9 0c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5 2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5zm-4.5-9c-3.314 0-6 2.686-6 6 0 .341.028.675.083 1 .15.894.49 1.714.977 2.41 1.05 1.503 2.872 2.59 4.94 2.59s3.89-1.087 4.94-2.59c.487-.696.827-1.516.977-2.41.055-.325.083-.659.083-1 0-3.314-2.686-6-6-6z"/>
+                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.5 13.5c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm-4.5 0c0 .828-.672 1.5-1.5 1.5s-1.5-.672-1.5-1.5.672-1.5 1.5-1.5 1.5.672 1.5 1.5zm9 0c0 2.485-2.015 4.5-4.5 4.5s-4.5-2.015-4.5-4.5 2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5zm-4.5-9c-3.314 0-6 2.686-6 6 0 .341.028.675.083 1 .15.894.49 1.714.977 2.41 1.05 1.503 2.872 2.59 4.94 2.59s3.89-1.087 4.94-2.59c.487-.696.827-1.516.977-2.41.055-.325.083-.659.083-1 0-3.314-2.686-6-6-6z" />
                   </svg>
                 </a>
               </div>
@@ -1237,7 +1237,7 @@ export default function FormForgeAILandingPage() {
 
           <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
-              © 2026 Codesteem. All rights reserved.
+              © 2026 <a href="https://codesteem.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">Codesteem</a>. All rights reserved.
             </div>
             {/* <div className="flex gap-8 text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
                <span>v0.12.0_Beta</span>
