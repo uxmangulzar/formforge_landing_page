@@ -16,6 +16,7 @@ export default function FormForgeAILandingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSignedUp, setIsSignedUp] = useState(false)
   const [signupData, setSignupData] = useState<any>(null)
+  const [signupMessage, setSignupMessage] = useState<string | null>(null)
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [showDemoVideo, setShowDemoVideo] = useState(false)
   const [statusEmail, setStatusEmail] = useState('')
@@ -59,14 +60,14 @@ export default function FormForgeAILandingPage() {
 
       if (response.status === 200 || response.status === 201) {
         setSignupData(response.data.data)
+        const rawMsg = response.data?.message ?? response.data?.data?.message
+        const msg =
+          typeof rawMsg === 'string' && rawMsg.trim()
+            ? rawMsg.trim()
+            : null
+        setSignupMessage(msg)
         setIsSignedUp(true)
-        toast.success('Successfully joined the waitlist!')
-
-        // Auto-reset back to form after 2 seconds
-        setTimeout(() => {
-          setIsSignedUp(false)
-          setSignupData(null)
-        }, 2000)
+        toast.success(msg || 'Successfully joined the waitlist!')
 
         setEmail('')
         setReferralCode('')
@@ -80,6 +81,13 @@ export default function FormForgeAILandingPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const dismissJoinSuccess = () => {
+    setIsSignedUp(false)
+    setSignupData(null)
+    setSignupMessage(null)
+    recaptchaRef.current?.reset()
   }
 
   const handleCheckStatus = async () => {
@@ -149,26 +157,29 @@ export default function FormForgeAILandingPage() {
     const sections = document.querySelectorAll('.reveal')
     sections.forEach((section) => observer.observe(section))
 
-    // Disable Right-Click and DevTools Shortcuts
-    const handleContextMenu = (e: MouseEvent) => e.preventDefault()
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-        (e.ctrlKey && e.key === 'u')
-      ) {
-        e.preventDefault()
-      }
-    }
-
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('keydown', handleKeyDown)
+    // Previously: disabled right-click + DevTools shortcuts (F12, Ctrl+Shift+I/J, Ctrl+U)
+    // This is now commented out so inspect / browser shortcuts keep working normally.
+    //
+    // const handleContextMenu = (e: MouseEvent) => e.preventDefault()
+    // const handleKeyDown = (e: KeyboardEvent) => {
+    //   if (
+    //     e.key === 'F12' ||
+    //     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+    //     (e.ctrlKey && e.key === 'u')
+    //   ) {
+    //     e.preventDefault()
+    //   }
+    // }
+    //
+    // document.addEventListener('contextmenu', handleContextMenu)
+    // document.addEventListener('keydown', handleKeyDown)
 
     return () => {
       clearInterval(syncInterval)
       sections.forEach((section) => observer.unobserve(section))
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('keydown', handleKeyDown)
+      // Cleanup for the (now disabled) context menu / DevTools handlers is no longer needed:
+      // document.removeEventListener('contextmenu', handleContextMenu)
+      // document.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
 
@@ -250,7 +261,7 @@ export default function FormForgeAILandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-green-400 selection:text-black overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white selection:bg-green-400 selection:text-black overflow-x-hidden 2xl:text-[17px]">
       {/* Dynamic Background Light System */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[10%] left-[10%] w-[40vw] h-[40vw] bg-green-400/5 blur-[120px] rounded-full animate-[float-orb_20s_infinite_ease-in-out]" />
@@ -263,7 +274,7 @@ export default function FormForgeAILandingPage() {
 
 
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/10 bg-black/60">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+        <div className="max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto px-4 sm:px-5 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div className="text-xl font-black tracking-tight">
             Repvio <span className="text-green-400">Fit</span>
           </div>
@@ -308,15 +319,15 @@ export default function FormForgeAILandingPage() {
       )}
 
 
-      <section className="relative px-5 pt-6 pb-10 max-w-7xl mx-auto z-10 reveal">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative px-4 sm:px-5 lg:px-8 pt-6 pb-10 z-10 reveal">
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-2 gap-8 xl:gap-12 items-center max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs mb-6">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               AI movement coaching beta opening soon
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-7xl leading-tight md:leading-none font-black tracking-tight">
+            <h1 className="text-[clamp(2rem,5.6vw,5.1rem)] [@media(min-width:1920px)]:text-[clamp(3.8rem,4.2vw,6.2rem)] leading-[1.05] font-black tracking-tight">
               Your phone camera can now <span className="text-green-400">fix your workout form.</span>
             </h1>
 
@@ -373,7 +384,7 @@ export default function FormForgeAILandingPage() {
             </div>
           </div>
 
-          <div className="relative flex items-center justify-center lg:justify-end min-h-[400px] sm:min-h-[500px] lg:min-h-[600px] lg:perspective-[2000px] overflow-hidden lg:overflow-visible">
+          <div className="relative flex items-center justify-center lg:justify-end min-h-[320px] sm:min-h-[500px] lg:min-h-[600px] lg:perspective-[2000px] overflow-hidden lg:overflow-visible">
             {/* Ultra-Modern Background Scene */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.15),transparent_70%)]" />
@@ -387,7 +398,7 @@ export default function FormForgeAILandingPage() {
             <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-yellow-400/10 blur-[120px] rounded-full animate-pulse [animation-delay:2s]" />
 
             {/* The Main 3D Perspective Visual */}
-            <div className="relative z-10 w-full max-w-[680px] transition-all duration-700 lg:[transform-style:preserve-3d] lg:hover:[transform:rotateY(-5deg)_rotateX(5deg)] group">
+            <div className="relative z-10 w-full max-w-[680px] xl:max-w-[760px] 2xl:max-w-[900px] [@media(min-width:1920px)]:max-w-[1100px] [@media(min-width:2560px)]:max-w-[1300px] transition-all duration-700 lg:[transform-style:preserve-3d] lg:hover:[transform:rotateY(-5deg)_rotateX(5deg)] group">
 
               {/* Reflection/Glow underneath */}
               <div className="absolute -inset-4 bg-green-400/20 blur-2xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -403,7 +414,11 @@ export default function FormForgeAILandingPage() {
                 <div className="absolute top-6 right-6 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-3 flex flex-col gap-2 [transform:translateZ(50px)]">
                   <div className="flex gap-0.5 h-6 items-end">
                     {[30, 60, 40, 80, 55, 70].map((h, i) => (
-                      <div key={i} className="w-0.5 bg-green-400/40 rounded-full animate-[grow_2s_ease-in-out_infinite]" style={{ height: `${h}%`, animationDelay: `${i * 0.2}s` }} />
+                    <div
+                      key={i}
+                      className="w-0.5 bg-green-400/40 rounded-full animate-[grow_2s_ease-in-out_infinite]"
+                      style={{ height: h + '%', animationDelay: i * 0.2 + 's' }}
+                    />
                     ))}
                   </div>
                 </div>
@@ -432,8 +447,8 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section className="px-5 py-8 sm:py-12 max-w-7xl mx-auto reveal">
-        <div className="relative group">
+      <section className="px-4 sm:px-5 lg:px-8 py-8 sm:py-12 reveal">
+        <div className="relative group max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {/* Background Glow */}
           <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-yellow-400/5 blur-3xl opacity-50" />
 
@@ -473,27 +488,26 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section className="relative px-5 py-10 sm:py-14 max-w-7xl mx-auto reveal overflow-hidden">
+      <section className="relative px-4 sm:px-5 lg:px-8 py-10 sm:py-14 reveal overflow-hidden">
         {/* Background Decorative Element */}
         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-yellow-500/5 to-transparent blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 max-w-3xl mb-6">
+        <div className="relative z-10 max-w-3xl mx-auto mb-6">
           <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 uppercase tracking-[0.2em] text-[10px] font-black mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
             The Problem
           </div>
-          <h2 className="text-4xl md:text-6xl font-black leading-[1.1] tracking-tight text-white">
+          <h2 className="text-[clamp(1.9rem,5.2vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.4vw,5.2rem)] font-black leading-[1.1] tracking-tight text-white">
             Most people train <span className="text-white/40 italic font-serif">blindly</span> without knowing if their form is correct.
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {painPoints.map((point, index) => (
             <div
               key={index}
               className="group relative bg-zinc-900/40 border border-white/5 rounded-2xl p-8 hover:bg-zinc-900/60 transition-all duration-500 hover:-translate-y-2"
             >
-              <div className={`absolute top-0 left-0 right-0 h-1 rounded-t-2xl transition-all duration-500 ${index % 2 === 0 ? 'bg-yellow-500/30 group-hover:bg-yellow-500' : 'bg-yellow-500/30 group-hover:bg-yellow-500'}`} />
+              <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl transition-all duration-500 bg-yellow-500/30 group-hover:bg-yellow-500" />
 
               <div className="flex flex-col h-full">
                 <div className="text-4xl font-black text-white/10 mb-6 group-hover:text-white/20 transition-colors">
@@ -528,11 +542,11 @@ export default function FormForgeAILandingPage() {
           <div className="absolute inset-0 bg-black/20" />
         </div>
 
-        <div className="relative z-10 px-5 max-w-7xl mx-auto">
+        <div className="relative z-10 px-4 sm:px-5 lg:px-8 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
 
           <div className="text-center max-w-3xl mx-auto mb-6">
             <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">How It Works</div>
-            <h2 className="text-4xl md:text-6xl font-black">
+            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black">
               AI coaching in seconds.
             </h2>
           </div>
@@ -580,33 +594,34 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="features" className="px-5 py-6 sm:py-10 max-w-7xl mx-auto reveal scroll-mt-20">
-        <div className="max-w-3xl mb-8">
+      <section id="features" className="px-4 sm:px-5 lg:px-8 py-6 sm:py-10 reveal scroll-mt-20">
+        <div className="relative z-10 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="max-w-3xl mb-8">
           <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">Core Features</div>
-          <h2 className="text-4xl md:text-6xl font-black">
+          <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black">
             Train. Play. Recover. Level up.
           </h2>
-        </div>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="group relative bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-10 min-h-[400px] flex flex-col justify-between overflow-hidden transition-all duration-700 hover:bg-zinc-900/60 hover:border-green-400/20 shadow-2xl"
-            >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="group relative bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-10 min-h-[360px] sm:min-h-[400px] flex flex-col justify-between overflow-hidden transition-all duration-700 hover:bg-zinc-900/60 hover:border-green-400/20 shadow-2xl"
+              >
               {/* Internal Grid Background */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" />
 
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(circle_at_top_right,rgba(74,222,128,0.1),transparent_50%)]" />
 
               <div className="relative z-10">
-                <div className="text-6xl text-green-400 mb-8 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-3 drop-shadow-[0_0_15px_rgba(74,222,128,0.3)]">
+                <div className="text-5xl sm:text-6xl [@media(min-width:1920px)]:text-7xl text-green-400 mb-8 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-3 drop-shadow-[0_0_15px_rgba(74,222,128,0.3)]">
                   {feature.icon}
                 </div>
                 <h3 className="text-4xl font-black mb-4 tracking-tight text-white group-hover:text-green-400 transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-white/60 text-xl leading-relaxed max-w-lg">
+                <p className="text-white/60 text-lg sm:text-xl [@media(min-width:1920px)]:text-2xl leading-relaxed max-w-lg">
                   {feature.desc}
                 </p>
               </div>
@@ -634,21 +649,22 @@ export default function FormForgeAILandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="challenges" className="relative px-5 py-24 sm:py-32 max-w-7xl mx-auto reveal scroll-mt-20">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
+      <section id="challenges" className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal scroll-mt-20">
+        <div className="grid lg:grid-cols-2 gap-20 items-center max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           <div className="relative">
             <div className="text-green-400 font-black text-xs uppercase tracking-[0.4em] mb-6">Viral Challenges</div>
-            <h2 className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tighter text-white mb-8">
+            <h2 className="text-[clamp(2.2rem,5.4vw,5.1rem)] [@media(min-width:1920px)]:text-[clamp(3.4rem,3.6vw,5.8rem)] font-black leading-[1.05] tracking-tighter text-white mb-8">
               Compete. Share.<br />
               <span className="text-green-400">Beat your score.</span>
             </h2>
 
-            <p className="text-white/50 text-xl leading-relaxed max-w-lg mb-12">
+            <p className="text-white/50 text-lg sm:text-xl [@media(min-width:1920px)]:text-2xl leading-relaxed max-w-lg mb-12">
               Turn workouts into competitive challenges with score sharing, rankings, and motion-based achievements.
             </p>
 
@@ -673,7 +689,7 @@ export default function FormForgeAILandingPage() {
 
             <div className="relative space-y-8">
               {/* Sleek Form Benchmark Card */}
-              <div className="bg-[#0A0A0A] border border-white/10 rounded-[3rem] p-12 shadow-2xl relative overflow-hidden group">
+              <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 </div>
@@ -684,7 +700,7 @@ export default function FormForgeAILandingPage() {
                 </div>
 
                 <div className="flex items-end justify-between mb-6">
-                  <div className="text-6xl font-black text-white tracking-tighter">91<span className="text-2xl text-white/20">/100</span></div>
+                  <div className="text-5xl sm:text-6xl [@media(min-width:1920px)]:text-7xl font-black text-white tracking-tighter">91<span className="text-2xl text-white/20">/100</span></div>
                   <div className="text-right">
                     <div className="text-green-400 font-bold text-sm tracking-widest uppercase">Rank_A+</div>
                     <div className="text-[10px] text-white/20 uppercase tracking-widest mt-1">Accuracy_Metric</div>
@@ -697,7 +713,7 @@ export default function FormForgeAILandingPage() {
               </div>
 
               {/* Minimal Leaderboard */}
-              <div className="bg-[#0A0A0A] border border-white/10 rounded-[3rem] p-10 shadow-2xl">
+              <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 shadow-2xl">
                 <div className="flex items-center justify-between mb-10">
                   <h3 className="text-xl font-bold text-white">Top Performers</h3>
                   <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Global_League</span>
@@ -724,23 +740,23 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section className="relative px-5 py-24 sm:py-32 max-w-7xl mx-auto reveal overflow-hidden">
+      <section className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal overflow-hidden">
         <div className="absolute inset-0 bg-[#050505]" />
         {/* Cinematic Background Glows */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-400/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-green-400/5 blur-[100px] rounded-full" />
 
-        <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center">
+        <div className="relative z-10 grid lg:grid-cols-2 gap-20 items-center max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-400/10 border border-green-400/20 text-green-400 uppercase tracking-[0.3em] text-[10px] font-black mb-8">
               User Experience
             </div>
-            <h2 className="text-5xl md:text-8xl font-black leading-[0.9] tracking-tighter text-white mb-10">
+            <h2 className="text-[clamp(2.2rem,5.8vw,6rem)] [@media(min-width:1920px)]:text-[clamp(3.6rem,3.8vw,6.6rem)] font-black leading-[0.9] tracking-tighter text-white mb-10">
               Feel coached <br />
               <span className="text-green-400 italic font-serif">every rep.</span>
             </h2>
 
-            <p className="mt-8 text-white/50 text-xl leading-relaxed max-w-xl">
+            <p className="mt-8 text-white/50 text-lg sm:text-xl [@media(min-width:1920px)]:text-2xl leading-relaxed max-w-xl">
               Experience a new era of training where AI watches, listens, and guides you through every single movement. No more guesswork—just pure, guided progress that feels like a world-class trainer in your pocket.
             </p>
           </div>
@@ -764,15 +780,15 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="feedback" className="px-5 py-6 sm:py-10 max-w-7xl mx-auto reveal scroll-mt-20">
-        <div className="text-center mb-8">
+      <section id="feedback" className="px-4 sm:px-5 lg:px-8 py-6 sm:py-10 reveal scroll-mt-20">
+        <div className="text-center mb-8 max-w-3xl mx-auto">
           <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">Beta Feedback</div>
-          <h2 className="text-4xl md:text-6xl font-black">
+          <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black">
             Early users are obsessed.
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {testimonials.map((item) => (
             <div key={item.name} className="bg-white/5 border border-white/10 rounded-[2rem] p-8">
               <div className="text-green-400 text-4xl mb-5">★★★★★</div>
@@ -785,11 +801,11 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="waitlist" className="relative px-5 py-24 sm:py-32 max-w-6xl mx-auto reveal scroll-mt-20">
+      <section id="waitlist" className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal scroll-mt-20">
         {/* Cinematic Background Atmosphere */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-green-400/[0.03] blur-[150px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 bg-[#0A0A0A] border border-white/10 rounded-[3.5rem] p-8 md:p-20 shadow-2xl overflow-hidden group">
+        <div className="relative z-10 w-full max-w-[88rem] 2xl:max-w-[112rem] [@media(min-width:1920px)]:max-w-[132rem] [@media(min-width:2560px)]:max-w-[150rem] mx-auto bg-[#0A0A0A] border border-white/10 rounded-[2rem] sm:rounded-[3rem] md:rounded-[3.5rem] p-5 sm:p-8 md:p-14 xl:p-20 shadow-2xl overflow-hidden group">
           {/* Internal Glowing Border Accent */}
           <div className="absolute inset-0 border border-green-400/10 rounded-[3.5rem] pointer-events-none group-hover:border-green-400/30 transition-colors duration-700" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-green-400/40 to-transparent" />
@@ -800,13 +816,15 @@ export default function FormForgeAILandingPage() {
               Join The Waitlist
             </div>
 
-            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tight text-white mb-10 leading-[1.1] break-words">
+            <h2 className="text-[clamp(2rem,5.2vw,5.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.4vw,5.8rem)] font-black tracking-tight text-white mb-10 leading-[1.1] break-words">
               Be among the first to <br />
               <span className="text-green-400 italic font-serif">experience AI movement coaching.</span>
             </h2>
 
             <p className="mt-6 text-white/50 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed px-4">
-              {isSignedUp ? 'Your spot is secured. Invite friends to move up the rank.' : 'Early beta users get priority access, exclusive features, and referral rewards.'}
+              {isSignedUp
+                ? 'Your spot is secured. Invite friends to move up the rank.'
+                : 'Early beta users get priority access, exclusive features, and referral rewards.'}
             </p>
 
             {/* Global Leaderboard Section */}
@@ -873,15 +891,35 @@ export default function FormForgeAILandingPage() {
             <div className="mt-16 max-w-3xl mx-auto space-y-6">
               {isSignedUp ? (
                 <div className="animate-in fade-in zoom-in-95 duration-500">
-                  <div className="bg-green-400/5 border border-green-400/20 rounded-[2.5rem] p-12 text-center py-24">
+                  <div className="relative bg-green-400/5 border border-green-400/20 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-center py-14 sm:py-20">
+                    <button
+                      type="button"
+                      onClick={dismissJoinSuccess}
+                      className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 w-10 h-10 rounded-full border border-white/10 bg-black/50 text-white/60 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center"
+                      aria-label="Close"
+                    >
+                      <X size={18} />
+                    </button>
                     <div className="w-20 h-20 rounded-3xl bg-green-400/10 flex items-center justify-center text-green-400 mx-auto mb-8 animate-bounce">
                       <Award size={40} />
                     </div>
                     <div className="text-[10px] font-black text-green-400 uppercase tracking-[0.4em] mb-4">Spot Secured</div>
-                    <h3 className="text-4xl sm:text-6xl font-black text-white mb-8">You are #{signupData?.position}</h3>
+                    <h3 className="text-[clamp(2rem,4.6vw,4.8rem)] [@media(min-width:1920px)]:text-[clamp(3rem,3.2vw,5.4rem)] font-black text-white mb-8">You are #{signupData?.position}</h3>
                     <div className="text-sm font-mono text-white/40 tracking-widest bg-white/5 inline-block px-6 py-3 rounded-xl border border-white/5">
                       REF_CODE: <span className="text-white font-bold">{signupData?.user?.referralCode}</span>
                     </div>
+                    {signupMessage ? (
+                      <p className="mt-6 text-white/60 text-sm sm:text-base max-w-xl mx-auto leading-relaxed px-2">
+                        {signupMessage}
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={dismissJoinSuccess}
+                      className="mt-8 text-white/50 hover:text-green-400 text-sm font-bold uppercase tracking-widest"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -1027,18 +1065,18 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="faq" className="relative px-5 py-24 sm:py-32 max-w-4xl mx-auto reveal scroll-mt-20">
+      <section id="faq" className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal scroll-mt-20">
         {/* Background Subtle Aura */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-green-400/5 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 text-center mb-16">
+        <div className="relative z-10 text-center mb-16 max-w-5xl 2xl:max-w-6xl [@media(min-width:1920px)]:max-w-[110rem] [@media(min-width:2560px)]:max-w-[130rem] mx-auto">
           <div className="text-green-400 font-black text-xs uppercase tracking-[0.4em] mb-6">FAQ</div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tight text-white">
+          <h2 className="text-[clamp(2.2rem,5.4vw,5rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.4vw,5.6rem)] font-black tracking-tight text-white">
             Common <span className="text-green-400 italic font-serif">Questions.</span>
           </h2>
         </div>
 
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-4 max-w-5xl 2xl:max-w-6xl [@media(min-width:1920px)]:max-w-[110rem] [@media(min-width:2560px)]:max-w-[130rem] mx-auto">
           {faqs.map((faq, index) => (
             <div
               key={index}
@@ -1046,9 +1084,9 @@ export default function FormForgeAILandingPage() {
             >
               <button
                 onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="w-full px-8 py-7 flex items-center justify-between text-left transition-colors"
+                className="w-full px-5 sm:px-8 py-5 sm:py-7 flex items-center justify-between text-left transition-colors gap-4"
               >
-                <span className={`text-xl font-bold tracking-tight ${openFaq === index ? 'text-green-400' : 'text-white/80'}`}>{faq.q}</span>
+                <span className={`text-base sm:text-xl font-bold tracking-tight ${openFaq === index ? 'text-green-400' : 'text-white/80'}`}>{faq.q}</span>
                 <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-500 ${openFaq === index ? 'bg-green-400 border-green-400 text-black rotate-180' : 'bg-white/5 border-white/10 text-white/40'}`}>
                   <ChevronDown size={18} />
                 </div>
@@ -1057,7 +1095,7 @@ export default function FormForgeAILandingPage() {
               <div
                 className={`transition-all duration-500 ease-in-out overflow-hidden ${openFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
               >
-                <div className="px-8 pb-8 text-lg text-white/50 leading-relaxed border-t border-white/5 pt-6">
+                <div className="px-5 sm:px-8 pb-6 sm:pb-8 text-base sm:text-lg text-white/50 leading-relaxed border-t border-white/5 pt-5 sm:pt-6">
                   {faq.a}
                 </div>
               </div>
@@ -1072,7 +1110,7 @@ export default function FormForgeAILandingPage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowStatusModal(false)} />
 
-            <div className="relative w-full max-w-lg bg-[#0A0A0A] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col">
+            <div className="relative w-full max-w-lg bg-[#0A0A0A] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col max-h-[92vh] overflow-y-auto">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-400/40 to-transparent" />
 
               <button
@@ -1102,7 +1140,7 @@ export default function FormForgeAILandingPage() {
                           value={statusEmail}
                           onChange={(e) => setStatusEmail(e.target.value)}
                           placeholder="Your registered email"
-                          className="w-full bg-black border border-white/10 rounded-2xl px-16 py-6 text-white outline-none focus:border-green-400/50 focus:bg-white/[0.02] transition-all text-lg"
+                          className="w-full bg-black border border-white/10 rounded-2xl pl-14 sm:pl-16 pr-4 sm:pr-6 py-4 sm:py-6 text-white outline-none focus:border-green-400/50 focus:bg-white/[0.02] transition-all text-base sm:text-lg"
                         />
                       </div>
 
@@ -1143,13 +1181,13 @@ export default function FormForgeAILandingPage() {
                       </div>
                     </div>
 
-                    <div className="bg-black border border-white/10 rounded-3xl p-6 text-left mb-10">
+                    <div className="bg-black border border-white/10 rounded-3xl p-5 sm:p-6 text-left mb-10">
                       <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-4 flex items-center justify-between">
                         Unique_Referral_Code
                         <span className="text-green-400">Active</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="text-2xl font-mono font-bold text-white tracking-widest">{statusData.user?.referralCode}</div>
+                        <div className="text-lg sm:text-2xl font-mono font-bold text-white tracking-[0.2em] break-all pr-4">{statusData.user?.referralCode}</div>
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(statusData.user?.referralCode);
@@ -1178,7 +1216,7 @@ export default function FormForgeAILandingPage() {
         {/* Background Subtle Gradient */}
         <div className="absolute bottom-0 left-0 w-full h-[300px] bg-gradient-to-t from-green-400/[0.02] to-transparent pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-20">
             <div className="lg:col-span-2">
               <div className="text-2xl font-black tracking-tighter mb-6">
@@ -1237,7 +1275,7 @@ export default function FormForgeAILandingPage() {
 
           <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
-              © 2026 <a href="https://codesteem.com" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors">Codesteem</a>. All rights reserved.
+              © 2026 <a href="https://codesteem.com" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-400 transition-colors">Codesteem</a>. All rights reserved.
             </div>
             {/* <div className="flex gap-8 text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
                <span>v0.12.0_Beta</span>
