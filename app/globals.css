@@ -3,7 +3,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Repvio brand palette — single source of truth
+ * Primary: neon lime | Secondary: cyan | Tertiary: ice blue | Neutral: black
+ */
 :root {
+  --repvio-primary: #c6ff00;
+  --repvio-secondary: #00e5ff;
+  --repvio-tertiary: #d9efff;
+  --repvio-neutral: #000000;
+  --repvio-primary-rgb: 198 255 0;
+  --repvio-secondary-rgb: 0 229 255;
+  --repvio-tertiary-rgb: 217 239 255;
+  --repvio-primary-dark: #a8d900;
+  --repvio-secondary-dark: #00b8d4;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -75,6 +89,18 @@
 }
 
 @theme inline {
+  /* Brand palette + map legacy green/yellow utilities to palette */
+  --color-repvio-primary: #c6ff00;
+  --color-repvio-secondary: #00e5ff;
+  --color-repvio-tertiary: #d9efff;
+  --color-repvio-neutral: #000000;
+  --color-repvio-primary-dark: #a8d900;
+  --color-repvio-secondary-dark: #00b8d4;
+  --color-green-400: #c6ff00;
+  --color-green-500: #a8d900;
+  --color-yellow-400: #00e5ff;
+  --color-yellow-500: #00b8d4;
+
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
@@ -157,6 +183,13 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  @keyframes hero-skeleton-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  .hero-skeleton-pulse {
+    animation: hero-skeleton-pulse 2s ease-in-out infinite;
+  }
 }
 
 .reveal {
@@ -164,6 +197,8 @@
   transform: translateY(30px);
   transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
   pointer-events: none;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
 }
 
 .reveal.is-visible {

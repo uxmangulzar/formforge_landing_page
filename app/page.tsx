@@ -1,9 +1,13 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
-import ReCAPTCHA from 'react-google-recaptcha'
-import { Smartphone, Camera, Activity, Sparkles, Trophy, Shield, Gamepad2, TrendingUp, Zap, Mic2, ChevronDown, Plus, Minus, Mail, Target, Loader2, UserPlus, Search, Award, X, Clipboard, Share2, Crown, Medal, Twitter, Linkedin, Facebook } from 'lucide-react'
+import Image from 'next/image'
+import type ReCAPTCHA from 'react-google-recaptcha'
+import { Smartphone, Camera, Activity, Sparkles, Trophy, Shield, Gamepad2, TrendingUp, Zap, ChevronDown, Plus, Minus, Mail, Target, Loader2, UserPlus, Search, Award, X, Clipboard, Share2, Crown, Twitter, Linkedin, Facebook, Dumbbell, Heart, LineChart, type LucideIcon } from 'lucide-react'
 import api from '@/utils/api'
 import { toast } from 'sonner'
+import RecaptchaWidget from '@/components/recaptcha-widget'
+import { MagicMomentDemo } from '@/components/magic-moment-demo'
+import { WaitlistLeaderboard } from '@/components/waitlist-leaderboard'
 
 export default function FormForgeAILandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
@@ -22,8 +26,6 @@ export default function FormForgeAILandingPage() {
   const [statusEmail, setStatusEmail] = useState('')
   const [statusData, setStatusData] = useState<any>(null)
   const [isStatusLoading, setIsStatusLoading] = useState(false)
-  const [leaderboard, setLeaderboard] = useState<any[]>([])
-  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true)
   const recaptchaRef = useRef<ReCAPTCHA>(null)
   const statusRecaptchaRef = useRef<ReCAPTCHA>(null)
 
@@ -117,146 +119,118 @@ export default function FormForgeAILandingPage() {
     }
   }
 
-  const fetchLeaderboard = async () => {
-    try {
-      const response = await api.get('/users/leaderboard')
-      if (response.data.success) {
-        setLeaderboard(response.data.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch leaderboard:', error)
-    } finally {
-      setIsLeaderboardLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchLeaderboard()
-
-    // Set up 2-second auto-sync for the leaderboard
-    const syncInterval = setInterval(fetchLeaderboard, 2000)
-
-    // Automatically capture referral code from URL if present (?ref=ABC123)
     const params = new URLSearchParams(window.location.search)
     const ref = params.get('ref')
     if (ref) setReferralCode(ref)
 
-    const observerOptions = {
-      threshold: 0.12,
-      rootMargin: '0px 0px -50px 0px'
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-        }
-      })
-    }, observerOptions)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -50px 0px' },
+    )
 
     const sections = document.querySelectorAll('.reveal')
     sections.forEach((section) => observer.observe(section))
 
-    // Previously: disabled right-click + DevTools shortcuts (F12, Ctrl+Shift+I/J, Ctrl+U)
-    // This is now commented out so inspect / browser shortcuts keep working normally.
-    //
-    // const handleContextMenu = (e: MouseEvent) => e.preventDefault()
-    // const handleKeyDown = (e: KeyboardEvent) => {
-    //   if (
-    //     e.key === 'F12' ||
-    //     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-    //     (e.ctrlKey && e.key === 'u')
-    //   ) {
-    //     e.preventDefault()
-    //   }
-    // }
-    //
-    // document.addEventListener('contextmenu', handleContextMenu)
-    // document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      clearInterval(syncInterval)
-      sections.forEach((section) => observer.unobserve(section))
-      // Cleanup for the (now disabled) context menu / DevTools handlers is no longer needed:
-      // document.removeEventListener('contextmenu', handleContextMenu)
-      // document.removeEventListener('keydown', handleKeyDown)
-    }
+    return () => observer.disconnect()
   }, [])
 
-  const features = [
+  const features: { title: string; desc: string; icon: LucideIcon; accent: string }[] = [
     {
       title: 'Train Mode',
-      desc: 'Real-time AI form correction for squats, push-ups, lunges, planks, and more.',
-      icon: '⦿',
-      img: '/feature_ai_tracking_1777653910366.png'
+      desc: 'Fix your form while training.',
+      icon: Dumbbell,
+      accent: 'from-green-400/15 via-green-400/5 to-transparent',
     },
     {
       title: 'Play Mode',
-      desc: 'Turn workouts into motion-controlled gaming experiences powered by your movement.',
-      icon: '△',
-      img: '/feature_fitness_gaming_1777653927143.png'
+      desc: 'Turn workouts into movement-based games.',
+      icon: Gamepad2,
+      accent: 'from-yellow-400/15 via-yellow-400/5 to-transparent',
     },
     {
       title: 'Recover Mode',
-      desc: 'AI-guided mobility and recovery exercises for safer movement and faster progress.',
-      icon: '✦',
-      img: '/feature_realtime_hud_1777653957669.png'
+      desc: 'Guided mobility and recovery training.',
+      icon: Heart,
+      accent: 'from-cyan-400/15 via-cyan-400/5 to-transparent',
     },
     {
       title: 'Progress Tracking',
-      desc: 'Track movement quality, posture improvement, and performance trends over time.',
-      icon: '▣',
-      img: '/feature_data_analytics_1777653942709.png'
+      desc: 'Track movement improvement over time.',
+      icon: LineChart,
+      accent: 'from-green-400/10 via-yellow-400/5 to-transparent',
     },
   ]
 
   const painPoints = [
-    'Not sure if your workout form is correct?',
-    'Working out alone without feedback?',
-    'Can’t afford a personal trainer?',
-    'Bored of repetitive workouts?',
-    'Want safer recovery exercises?',
+    'You think your form is correct, but it may not be',
+    'Small mistakes can lead to injuries over time',
+    'No trainer means no real correction',
+    'Progress is slower without feedback',
+  ]
+
+  const solutionSteps = [
+    { title: 'Open camera', icon: Camera },
+    { title: 'Start moving', icon: Activity },
+    { title: 'Get instant AI coaching', icon: Sparkles },
+  ]
+
+  const howItWorksSteps = [
+    { title: 'Open your camera', icon: Camera },
+    { title: 'Move naturally', icon: Activity },
+    { title: 'Get AI feedback instantly', icon: Sparkles },
   ]
 
   const testimonials = [
     {
-      name: 'Ariana, Beginner Lifter',
-      text: 'It feels like having a trainer watching every rep. I instantly fixed my squat depth.',
+      name: 'Priya S.',
+      type: 'Beginner',
+      text: "I didn't realize my form was this bad.",
     },
     {
-      name: 'Jay, Gamer & Fitness Creator',
-      text: 'The motion gaming mode is insanely addictive. I actually want to work out now.',
+      name: 'Jay T.',
+      type: 'Gamer',
+      text: 'This makes workouts actually fun.',
     },
     {
-      name: 'Mason, Recovery User',
-      text: 'The mobility coaching helped me move confidently again after my knee injury.',
+      name: 'Marcus L.',
+      type: 'Beginner',
+      text: 'It feels like a real coach is watching me.',
+    },
+    {
+      name: 'Elena R.',
+      type: 'Recovery',
+      text: "Way better than fitness apps I've used.",
     },
   ]
 
   const faqs = [
     {
       q: 'Do I need equipment?',
-      a: 'No. Repvio Fit AI works using only your smartphone camera.',
+      a: 'No, just your phone.',
     },
     {
       q: 'Does it work on iPhone and Android?',
-      a: 'Yes. The beta will support both iPhone and Android devices.',
+      a: 'Yes.',
     },
     {
-      q: 'Does it require wearables?',
-      a: 'No wearables, sensors, or extra hardware required.',
+      q: 'Is it free?',
+      a: 'Yes for beta users.',
     },
     {
       q: 'Can beginners use it?',
-      a: 'Absolutely. Repvio Fit AI is designed to help beginners train with confidence.',
+      a: 'Yes.',
     },
     {
-      q: 'Is it good for home workouts?',
-      a: 'Yes. The app is built for home workouts, small spaces, and flexible routines.',
-    },
-    {
-      q: 'How accurate is the AI coaching?',
-      a: 'Advanced pose tracking analyzes movement patterns in real time to deliver precise feedback.',
+      q: 'Is data private?',
+      a: 'Only movement data is used.',
     },
   ]
 
@@ -322,52 +296,20 @@ export default function FormForgeAILandingPage() {
       <section className="relative px-4 sm:px-5 lg:px-8 pt-6 pb-10 z-10 reveal">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-2 gap-8 xl:gap-12 items-center max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           <div>
-            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs mb-6">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              AI movement coaching beta opening soon
-            </div>
-
             <h1 className="text-[clamp(2rem,5.6vw,5.1rem)] [@media(min-width:1920px)]:text-[clamp(3.8rem,4.2vw,6.2rem)] leading-[1.05] font-black tracking-tight">
-              Your phone camera can now <span className="text-green-400">fix your workout form.</span>
+              Your workout form is probably <span className="text-green-400">wrong.</span> AI can fix it <span className="text-green-400">instantly.</span>
             </h1>
 
             <p className="mt-6 text-lg text-white/70 max-w-xl leading-relaxed">
-              Real-time AI movement coaching, fitness gaming, and recovery training using only your smartphone camera.
+              No trainer. No wearables. Just real-time AI movement feedback.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <a href="#waitlist" className="bg-green-400 text-black px-8 py-4 rounded-2xl font-black text-lg hover:scale-[1.03] transition-transform shadow-[0_0_30px_rgba(74,222,128,0.4)] text-center">
-                Get Early Access
+            <div className="mt-8">
+              <a href="#waitlist" className="inline-flex bg-green-400 text-black px-8 py-4 rounded-2xl font-black text-lg hover:scale-[1.03] transition-transform shadow-[0_0_30px_rgb(var(--repvio-primary-rgb)/0.4)]">
+                Try the Beta
               </a>
-
-              <button
-                onClick={() => setShowDemoVideo(true)}
-                className="border border-white/15 bg-white/5 px-8 py-4 rounded-2xl font-semibold text-white hover:bg-white/10 transition-colors"
-              >
-                Watch Demo
-              </button>
+              <p className="mt-3 text-sm text-white/50">Early access for limited users</p>
             </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-8 text-sm">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-zinc-800 flex items-center justify-center overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-green-400/20 to-zinc-700" />
-                  </div>
-                ))}
-                <div className="w-10 h-10 rounded-full border-2 border-black bg-green-400 text-black flex items-center justify-center font-bold text-xs">
-                  +12k
-                </div>
-              </div>
-
-              <div className="text-white/60">
-                <div className="flex items-center gap-1 text-yellow-400 mb-0.5">
-                  {'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}
-                </div>
-                <p>Join 12,000+ early testers training with AI</p>
-              </div>
-            </div>
-
             <div className="mt-8 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-white/40">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
@@ -387,7 +329,7 @@ export default function FormForgeAILandingPage() {
           <div className="relative flex items-center justify-center lg:justify-end min-h-[320px] sm:min-h-[500px] lg:min-h-[600px] lg:perspective-[2000px] overflow-hidden lg:overflow-visible">
             {/* Ultra-Modern Background Scene */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.15),transparent_70%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(var(--repvio-primary-rgb) /0.15),transparent_70%)]" />
               <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] opacity-20">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:40px_40px] [transform:rotateX(60deg)_translateZ(-100px)]" />
               </div>
@@ -405,7 +347,7 @@ export default function FormForgeAILandingPage() {
 
               {/* Main Frame */}
               <div className="relative rounded-xl border border-white/20 bg-zinc-950 overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] ring-1 ring-white/10">
-                <img src="/hero.png" alt="FormForge AI Pro" className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105" />
+                <Image src="/hero.png" width={800} height={600} priority alt="FormForge AI Pro" className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105" />
 
                 {/* High-End Glass Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-zinc-950/60 via-transparent to-white/5" />
@@ -447,14 +389,47 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
+      <section className="relative px-4 sm:px-5 lg:px-8 py-12 sm:py-16 z-10 reveal">
+        <div className="max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="relative rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-white/[0.03] backdrop-blur-sm px-6 py-10 sm:px-12 sm:py-14 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-400/[0.04] via-transparent to-yellow-400/[0.04] pointer-events-none" />
+
+            <h2 className="relative text-center text-[clamp(1.6rem,3.8vw,2.75rem)] font-black tracking-tight text-white leading-[1.15] max-w-3xl mx-auto">
+              What if your phone could <span className="text-green-400">coach every rep?</span>
+            </h2>
+
+            <div className="relative mt-10 grid sm:grid-cols-3 gap-4 sm:gap-6">
+              {[
+                { icon: Zap, text: 'Fix your form instantly' },
+                { icon: Gamepad2, text: 'Turn workouts into games' },
+                { icon: Activity, text: 'Track movement like an athlete' },
+              ].map(({ icon: Icon, text }) => (
+                <div
+                  key={text}
+                  className="flex flex-col items-center text-center gap-4 rounded-2xl border border-white/5 bg-black/40 px-5 py-6 sm:py-8 hover:border-green-400/20 hover:bg-black/60 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-green-400/10 border border-green-400/20 flex items-center justify-center text-green-400">
+                    <Icon size={22} strokeWidth={2.5} />
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-white/90 leading-snug">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="px-4 sm:px-5 lg:px-8 py-8 sm:py-12 reveal">
         <div className="relative group max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {/* Background Glow */}
           <div className="absolute inset-0 bg-gradient-to-r from-green-400/5 to-yellow-400/5 blur-3xl opacity-50" />
 
           <div className="relative rounded-3xl border border-white/10 bg-zinc-950 overflow-hidden shadow-2xl">
-            <img
+            <Image
               src="/push_up.png"
+              width={1920}
+              height={1080}
+              loading="lazy"
               alt="AI Push Up Coaching"
               className="w-full h-auto min-h-[300px] object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
             />
@@ -497,11 +472,11 @@ export default function FormForgeAILandingPage() {
             The Problem
           </div>
           <h2 className="text-[clamp(1.9rem,5.2vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.4vw,5.2rem)] font-black leading-[1.1] tracking-tight text-white">
-            Most people train <span className="text-white/40 italic font-serif">blindly</span> without knowing if their form is correct.
+            Most people train <span className="text-green-400">without feedback.</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {painPoints.map((point, index) => (
             <div
               key={index}
@@ -526,71 +501,108 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="how-it-works" className="relative py-20 sm:py-24 reveal scroll-mt-20 overflow-hidden">
-        {/* Cinematic Scrolling Background */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/how_it_works.png"
-            alt="Background"
-            className="w-full h-[125%] object-cover object-center  [animation-timeline:scroll()] [animation-range:0%_100%] animate-[pan-bg_linear_both]"
-            style={{
-              animationTimeline: 'scroll()',
-              animationRange: '0% 100%'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
+      <section id="solution" className="relative px-4 sm:px-5 lg:px-8 py-20 sm:py-28 reveal scroll-mt-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[60%] bg-green-400/5 blur-[140px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 px-4 sm:px-5 lg:px-8 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
-
-          <div className="text-center max-w-3xl mx-auto mb-6">
-            <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">How It Works</div>
-            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black">
-              AI coaching in seconds.
+        <div className="relative z-10 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-green-400/10 border border-green-400/20 text-green-400 uppercase tracking-[0.2em] text-[10px] font-black mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              The Solution
+            </div>
+            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black leading-[1.05] tracking-tight text-white">
+              This changes <span className="text-green-400">everything.</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-            {[
-              { title: 'Open app', desc: 'No gear needed, just your phone.', icon: Smartphone },
-              { title: 'Point camera', desc: 'Prop it up and step back.', icon: Camera },
-              { title: 'Start moving', desc: 'AI tracks your every rep.', icon: Activity },
-              { title: 'Get live coaching', desc: 'Instant form corrections.', icon: Sparkles },
-              { title: 'Level up', desc: 'Share scores & beat records.', icon: Trophy },
-            ].map((step, index) => (
-              <div key={step.title} className="group relative bg-zinc-900/60 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 hover:bg-zinc-900/80 transition-all duration-500 hover:-translate-y-2 hover:border-green-400/30 shadow-2xl">
-                {/* Step Connector Line (Desktop) */}
-                {index < 4 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-[1px] bg-gradient-to-r from-green-400/30 to-transparent z-0" />
-                )}
-
-                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-400 to-green-500 text-black flex items-center justify-center font-black text-xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500 shadow-[0_0_20px_rgba(74,222,128,0.3)]">
+          <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-10 xl:gap-14 items-center">
+            <div className="space-y-4 sm:space-y-5">
+              {solutionSteps.map((step, index) => (
+                <div
+                  key={step.title}
+                  className="group flex items-center gap-5 sm:gap-6 rounded-2xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-5 sm:p-6 hover:border-green-400/30 hover:bg-zinc-900/70 transition-all duration-300"
+                >
+                  <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-green-400 to-green-500 text-black flex items-center justify-center font-black text-lg sm:text-xl shadow-[0_0_20px_rgb(var(--repvio-primary-rgb)/0.25)] group-hover:scale-105 transition-transform">
                     {index + 1}
                   </div>
-
-                  <h3 className="font-black text-2xl mb-3 tracking-tight text-white group-hover:text-green-400 transition-colors">{step.title}</h3>
-                  <p className="text-white/50 text-sm leading-relaxed mb-8">{step.desc}</p>
-
-                  <div className="h-28 rounded-2xl bg-black/40 border border-white/5 relative overflow-hidden group-hover:border-green-400/20 transition-colors">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.1),transparent_70%)]" />
-                    {/* Technical HUD Elements */}
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <div className="w-1 h-1 rounded-full bg-green-400/40 animate-pulse" />
-                      <div className="w-1 h-1 rounded-full bg-green-400/20" />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity">
-                      <step.icon size={48} className="text-green-400" />
-                    </div>
-                    <div className="absolute bottom-2 left-3 text-[8px] font-mono text-white/20 uppercase tracking-[0.2em]">Tracking_Active</div>
-
-                    <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-green-400/10 to-transparent animate-pulse" />
+                  <div className="flex min-w-0 items-center gap-3">
+                    <step.icon size={20} className="text-green-400 shrink-0" />
+                    <h3 className="font-black text-lg sm:text-xl text-white group-hover:text-green-400 transition-colors">{step.title}</h3>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 via-transparent to-green-400/20 rounded-[2rem] sm:rounded-[2.5rem] blur-sm opacity-60 group-hover:opacity-80 transition-opacity pointer-events-none" />
+              <div className="relative rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-zinc-950 overflow-hidden shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85)] ring-1 ring-white/5">
+                <Image
+                  src="/right_wrong.png"
+                  width={1200}
+                  height={800}
+                  loading="lazy"
+                  alt="Wrong form versus AI-corrected form comparison"
+                  className="w-full h-auto block"
+                />
+                <div className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/10 sm:rounded-[2.5rem]" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="how-it-works" className="relative px-4 sm:px-5 lg:px-8 py-16 sm:py-24 reveal scroll-mt-20 overflow-hidden">
+        <div className="relative z-10 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-14">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-green-400/10 border border-green-400/20 text-green-400 uppercase tracking-[0.2em] text-[10px] font-black mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              How It Works
+            </div>
+            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black leading-[1.05] tracking-tight text-white">
+              Three steps. <span className="text-green-400">Instant coaching.</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto">
+            {howItWorksSteps.map((step, index) => (
+              <div
+                key={step.title}
+                className="group flex flex-col items-center text-center rounded-2xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8 hover:border-green-400/30 hover:bg-zinc-900/70 transition-all duration-300"
+              >
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-green-500 text-black font-black text-xl shadow-[0_0_20px_rgb(var(--repvio-primary-rgb)/0.25)] group-hover:scale-105 transition-transform">
+                  {index + 1}
+                </div>
+                <step.icon size={24} className="text-green-400 mb-4" strokeWidth={2.5} />
+                <h3 className="font-black text-lg sm:text-xl text-white group-hover:text-green-400 transition-colors leading-snug">
+                  {step.title}
+                </h3>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="magic-moment" className="relative px-4 sm:px-5 lg:px-8 py-20 sm:py-28 reveal scroll-mt-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[50%] bg-yellow-400/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-green-400/5 to-transparent blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 uppercase tracking-[0.2em] text-[10px] font-black mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+              Magic Moment
+            </div>
+            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black leading-[1.05] tracking-tight text-white">
+              Real-time feedback in <span className="text-green-400">under 1 second.</span>
+            </h2>
+          </div>
+
+          <MagicMomentDemo />
+
+          <p className="mt-12 sm:mt-14 text-center text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
+            &ldquo;It feels like a real trainer is watching every rep.&rdquo;
+          </p>
         </div>
       </section>
 
@@ -603,142 +615,107 @@ export default function FormForgeAILandingPage() {
           </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group relative bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-10 min-h-[360px] sm:min-h-[400px] flex flex-col justify-between overflow-hidden transition-all duration-700 hover:bg-zinc-900/60 hover:border-green-400/20 shadow-2xl"
-              >
-              {/* Internal Grid Background */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" />
-
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[radial-gradient(circle_at_top_right,rgba(74,222,128,0.1),transparent_50%)]" />
-
-              <div className="relative z-10">
-                <div className="text-5xl sm:text-6xl [@media(min-width:1920px)]:text-7xl text-green-400 mb-8 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-3 drop-shadow-[0_0_15px_rgba(74,222,128,0.3)]">
-                  {feature.icon}
-                </div>
-                <h3 className="text-4xl font-black mb-4 tracking-tight text-white group-hover:text-green-400 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-white/60 text-lg sm:text-xl [@media(min-width:1920px)]:text-2xl leading-relaxed max-w-lg">
-                  {feature.desc}
-                </p>
-              </div>
-
-              <div className="relative z-10 mt-10 h-64 sm:h-72 rounded-3xl bg-black border border-white/5 overflow-hidden group-hover:border-green-400/30 transition-colors duration-700 shadow-inner">
-                {/* Visual Background */}
-                <img src={feature.img} alt={feature.title} className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700" />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.08),transparent_70%)]" />
-
-                {/* Animated Scanner Beam */}
-                <div className="absolute inset-0 bg-gradient-to-b from-green-400/20 to-transparent h-1/2 w-full -translate-y-full animate-[scan_3s_infinite_linear] opacity-20 pointer-events-none" />
-
-                {/* Technical HUD Data */}
-                <div className="absolute top-4 right-4 flex items-center gap-2 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full border border-white/5">
-                  <span className="text-[8px] font-mono text-white/50 uppercase tracking-widest">System_Online</span>
-                  <div className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                </div>
-
-                <div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md rounded-2xl border border-white/10 p-3 sm:p-4 flex items-center">
-                  <div className="text-[10px] sm:text-xs font-black text-white/70 uppercase tracking-widest flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                    AI Motion Analysis Active
-                  </div>
-                </div>
-              </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="challenges" className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal scroll-mt-20">
-        <div className="grid lg:grid-cols-2 gap-20 items-center max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
-          <div className="relative">
-            <div className="text-green-400 font-black text-xs uppercase tracking-[0.4em] mb-6">Viral Challenges</div>
-            <h2 className="text-[clamp(2.2rem,5.4vw,5.1rem)] [@media(min-width:1920px)]:text-[clamp(3.4rem,3.6vw,5.8rem)] font-black leading-[1.05] tracking-tighter text-white mb-8">
-              Compete. Share.<br />
-              <span className="text-green-400">Beat your score.</span>
-            </h2>
-
-            <p className="text-white/50 text-lg sm:text-xl [@media(min-width:1920px)]:text-2xl leading-relaxed max-w-lg mb-12">
-              Turn workouts into competitive challenges with score sharing, rankings, and motion-based achievements.
-            </p>
-
-            <div className="flex flex-col gap-6">
-              {[
-                { label: 'Global Rankings', icon: Activity },
-                { label: 'Exclusive Badges', icon: Trophy }
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-4 group">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-green-400 group-hover:bg-green-400 group-hover:text-black transition-all duration-500">
-                    <item.icon size={22} />
-                  </div>
-                  <span className="text-white/80 font-semibold tracking-tight">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative">
-            {/* Ambient Background Aura */}
-            <div className="absolute -inset-20 bg-green-400/5 blur-[120px] rounded-full opacity-50" />
-
-            <div className="relative space-y-8">
-              {/* Sleek Form Benchmark Card */}
-              <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-8">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                </div>
-
-                <div className="mb-12">
-                  <div className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em] mb-4">Benchmark_Result</div>
-                  <h3 className="text-4xl font-black text-white">Perfect Squat</h3>
-                </div>
-
-                <div className="flex items-end justify-between mb-6">
-                  <div className="text-5xl sm:text-6xl [@media(min-width:1920px)]:text-7xl font-black text-white tracking-tighter">91<span className="text-2xl text-white/20">/100</span></div>
-                  <div className="text-right">
-                    <div className="text-green-400 font-bold text-sm tracking-widest uppercase">Rank_A+</div>
-                    <div className="text-[10px] text-white/20 uppercase tracking-widest mt-1">Accuracy_Metric</div>
-                  </div>
-                </div>
-
-                <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full w-[91%] bg-green-400 shadow-[0_0_20px_rgba(74,222,128,0.5)]" />
-                </div>
-              </div>
-
-              {/* Minimal Leaderboard */}
-              <div className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 shadow-2xl">
-                <div className="flex items-center justify-between mb-10">
-                  <h3 className="text-xl font-bold text-white">Top Performers</h3>
-                  <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Global_League</span>
-                </div>
-
-                <div className="space-y-2">
-                  {[
-                    { name: 'Marcus Thorne', score: '98', rank: '01' },
-                    { name: 'Sarah Jenkins', score: '91', rank: '02' },
-                    { name: 'Elena Rodriguez', score: '87', rank: '03' }
-                  ].map((item) => (
-                    <div key={item.name} className={`flex items-center justify-between p-5 rounded-2xl transition-all ${item.name === 'Sarah Jenkins' ? 'bg-white/5 border border-white/10' : 'hover:bg-white/[0.02]'}`}>
-                      <div className="flex items-center gap-6">
-                        <span className="font-mono text-xs text-white/20">{item.rank}</span>
-                        <span className={`text-lg font-bold ${item.name === 'Sarah Jenkins' ? 'text-green-400' : 'text-white/80'}`}>{item.name}</span>
-                      </div>
-                      <span className={`font-black text-xl ${item.name === 'Sarah Jenkins' ? 'text-green-400' : 'text-white/20'}`}>{item.score}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+            {features.map((feature) => {
+              const FeatureIcon = feature.icon
+              return (
+                <div
+                  key={feature.title}
+                  className="group relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8 transition-all duration-500 hover:border-green-400/25 hover:bg-zinc-900/70"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.accent} opacity-80 pointer-events-none`} />
+                  <div className="relative z-10">
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-400/10 border border-green-400/20 text-green-400 transition-transform duration-500 group-hover:scale-105 group-hover:bg-green-400/15">
+                      <FeatureIcon size={26} strokeWidth={2.25} />
                     </div>
-                  ))}
+                    <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2 group-hover:text-green-400 transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-base sm:text-lg text-white/55 leading-relaxed">
+                      {feature.desc}
+                    </p>
+                  </div>
                 </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section id="challenges" className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal scroll-mt-20 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[50%] bg-green-400/5 blur-[140px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+          <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-green-400/10 border border-green-400/20 text-green-400 uppercase tracking-[0.2em] text-[10px] font-black mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Competition
+            </div>
+            <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black leading-[1.05] tracking-tight text-white">
+              Compete with your <span className="text-green-400">movement.</span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 sm:gap-6 max-w-5xl mx-auto">
+            <div className="rounded-[2rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-400/10 border border-green-400/20 text-green-400">
+                  <Target size={22} strokeWidth={2.25} />
+                </div>
+                <p className="text-sm font-bold text-white/70">Squat Score</p>
+              </div>
+              <div className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                91<span className="text-xl text-white/35">/100</span>
+              </div>
+              <div className="mt-5 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full w-[91%] rounded-full bg-green-400" />
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8 flex flex-col justify-between">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 border border-yellow-400/20 text-yellow-400">
+                  <Share2 size={22} strokeWidth={2.25} />
+                </div>
+                <p className="text-sm font-bold text-white/70">Challenge friends</p>
+              </div>
+              <p className="text-2xl sm:text-3xl font-black text-white leading-tight mb-6">
+                Beat my form score
+              </p>
+              <div className="inline-flex items-center justify-center rounded-xl bg-green-400 px-4 py-3 text-sm font-black text-black">
+                Share challenge
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-400/10 border border-green-400/20 text-green-400">
+                  <Trophy size={22} strokeWidth={2.25} />
+                </div>
+                <p className="text-sm font-bold text-white/70">Movement leaderboard</p>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { name: 'Alex M.', score: 94 },
+                  { name: 'You', score: 91, highlight: true },
+                  { name: 'Jordan K.', score: 88 },
+                ].map((row) => (
+                  <div
+                    key={row.name}
+                    className={`flex items-center justify-between rounded-xl px-4 py-3 ${
+                      row.highlight ? 'bg-green-400/10 border border-green-400/25' : 'bg-white/[0.03]'
+                    }`}
+                  >
+                    <span className={`font-semibold ${row.highlight ? 'text-green-400' : 'text-white/80'}`}>{row.name}</span>
+                    <span className={`font-black ${row.highlight ? 'text-green-400' : 'text-white/50'}`}>{row.score}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       <section className="relative px-4 sm:px-5 lg:px-8 py-24 sm:py-32 reveal overflow-hidden">
         <div className="absolute inset-0 bg-[#050505]" />
@@ -780,22 +757,28 @@ export default function FormForgeAILandingPage() {
         </div>
       </section>
 
-      <section id="feedback" className="px-4 sm:px-5 lg:px-8 py-6 sm:py-10 reveal scroll-mt-20">
-        <div className="text-center mb-8 max-w-3xl mx-auto">
-          <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">Beta Feedback</div>
+      <section id="feedback" className="px-4 sm:px-5 lg:px-8 py-16 sm:py-24 reveal scroll-mt-20">
+        <div className="text-center mb-10 sm:mb-12 max-w-3xl mx-auto">
+          <div className="text-green-400 uppercase tracking-[0.3em] text-xs mb-4">Testimonials</div>
           <h2 className="text-[clamp(2rem,5.1vw,4.2rem)] [@media(min-width:1920px)]:text-[clamp(3.2rem,3.2vw,5rem)] font-black">
-            Early users are obsessed.
+            What early users <span className="text-green-400">are saying.</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7 max-w-[90rem] 2xl:max-w-[120rem] [@media(min-width:1920px)]:max-w-[140rem] [@media(min-width:2560px)]:max-w-[160rem] mx-auto">
           {testimonials.map((item) => (
-            <div key={item.name} className="bg-white/5 border border-white/10 rounded-[2rem] p-8">
-              <div className="text-green-400 text-4xl mb-5">★★★★★</div>
-              <p className="text-white/80 text-lg leading-relaxed">
-                “{item.text}”
+            <div
+              key={item.name}
+              className="flex min-h-[17rem] sm:min-h-[18rem] flex-col rounded-[2rem] sm:rounded-[2.25rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-7 sm:p-9 lg:p-10"
+            >
+              <div className="mb-5 text-lg sm:text-xl text-green-400 tracking-wide">★★★★★</div>
+              <p className="flex-1 text-white/80 text-lg sm:text-xl leading-relaxed">
+                &ldquo;{item.text}&rdquo;
               </p>
-              <div className="mt-6 text-white/50">{item.name}</div>
+              <div className="mt-7 pt-7 border-t border-white/10">
+                <p className="text-lg font-bold text-white">{item.name}</p>
+                <p className="mt-1.5 text-base font-semibold text-green-400">{item.type}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -827,66 +810,7 @@ export default function FormForgeAILandingPage() {
                 : 'Early beta users get priority access, exclusive features, and referral rewards.'}
             </p>
 
-            {/* Global Leaderboard Section */}
-            {!isSignedUp && (
-              <div className="mt-16 mb-12">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-2">
-                  <div className="flex items-center gap-3">
-                    <Trophy className="text-green-400 shrink-0" size={18} />
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">Waitlist Elite</h3>
-                  </div>
-                  <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                    Priority Queue
-                  </div>
-                </div>
-
-                <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] overflow-hidden">
-                  {isLeaderboardLoading ? (
-                    <div className="py-20 flex flex-col items-center justify-center gap-4 text-white/20">
-                      <Loader2 className="animate-spin" size={24} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Loading Rankings...</span>
-                    </div>
-                  ) : leaderboard.length > 0 ? (
-                    <div className="divide-y divide-white/5">
-                      {leaderboard.slice(0, 5).map((user, idx) => (
-                        <div key={idx} className="flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-white/[0.02] transition-colors group gap-4">
-                          <div className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${idx === 0 ? 'bg-yellow-400 text-black shadow-[0_0_20px_rgba(250,204,21,0.3)]' :
-                              idx === 1 ? 'bg-zinc-300 text-black' :
-                                idx === 2 ? 'bg-amber-600 text-white' : 'bg-white/5 text-white/40'
-                              }`}>
-                              {idx + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-white/80 flex items-center gap-2">
-                                <span className="truncate">{user.email.replace(/(.{2})(.*)(?=@)/, (gp1: string, gp2: string, gp3: string) => gp2 + '*'.repeat(gp3.length))}</span>
-                                {idx < 3 && <Medal size={12} className={idx === 0 ? 'text-yellow-400 shrink-0' : 'text-white/40 shrink-0'} />}
-                              </div>
-                              <div className="text-[10px] font-mono text-white/20 tracking-widest truncate">{user.referralCode}</div>
-                            </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <div className="text-sm font-black text-white group-hover:text-green-400 transition-colors">{user.referralCount}</div>
-                            <div className="text-[8px] font-bold text-white/10 uppercase tracking-tighter">Priority Points</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-12 text-center text-white/20 text-[10px] font-bold uppercase tracking-widest">
-                      Leaderboard empty. Be the first to lead!
-                    </div>
-                  )}
-                </div>
-
-                {leaderboard.length > 5 && (
-                  <div className="mt-4 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-center">
-                    + {leaderboard.length - 5} more elite members in the top rank
-                  </div>
-                )}
-              </div>
-            )}
+            {!isSignedUp && <WaitlistLeaderboard />}
 
             <div className="mt-16 max-w-3xl mx-auto space-y-6">
               {isSignedUp ? (
@@ -1015,7 +939,7 @@ export default function FormForgeAILandingPage() {
 
                   {/* Google reCAPTCHA Integration */}
                   <div className="flex justify-center py-6 sm:py-4 scale-[0.75] sm:scale-100 origin-center -my-2">
-                    <ReCAPTCHA
+                    <RecaptchaWidget
                       ref={recaptchaRef}
                       theme="dark"
                       sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || 'your-fallback-key'}
@@ -1033,7 +957,7 @@ export default function FormForgeAILandingPage() {
                         <Loader2 className="animate-spin" size={24} />
                       ) : (
                         <>
-                          Join Beta
+                          Get Early Access
                           <Sparkles size={20} />
                         </>
                       )}
@@ -1057,7 +981,7 @@ export default function FormForgeAILandingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1 h-1 rounded-full bg-green-400" />
-                  Limited beta spots remaining
+                  Limited beta access available
                 </div>
               </div>
             </div>
@@ -1145,7 +1069,7 @@ export default function FormForgeAILandingPage() {
                       </div>
 
                       <div className="flex justify-center py-2 scale-[0.8] sm:scale-100 -my-2 sm:my-0">
-                        <ReCAPTCHA
+                        <RecaptchaWidget
                           ref={statusRecaptchaRef}
                           theme="dark"
                           sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || 'your-fallback-key'}
@@ -1267,7 +1191,7 @@ export default function FormForgeAILandingPage() {
               <ul className="space-y-4 text-white/40 text-sm font-medium mb-8">
                 <li className="hover:text-green-400 transition-colors cursor-pointer">hello@repviofit.ai</li>
               </ul>
-              <a href="#waitlist" className="inline-flex items-center justify-center bg-green-400 text-black px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(74,222,128,0.2)] whitespace-nowrap">
+              <a href="#waitlist" className="inline-flex items-center justify-center bg-green-400 text-black px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgb(var(--repvio-primary-rgb) /0.2)] whitespace-nowrap">
                 Join Waitlist
               </a>
             </div>

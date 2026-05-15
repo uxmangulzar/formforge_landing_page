@@ -1,0 +1,46 @@
+                <div className="relative aspect-[16/10] bg-zinc-950 sm:aspect-[5/3]">
+                  <div className="grid h-full grid-cols-2">
+                    <div className="relative overflow-hidden border-r border-white/10">
+                      <img
+                        src="/push_up.png"
+                        alt="Incorrect push-up form"
+                        className="absolute inset-0 h-full w-full object-cover object-[58%_42%]"
+                      />
+                      <div className="absolute inset-0 bg-red-950/45 mix-blend-multiply" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                      <PushUpSkeleton variant="wrong" />
+                      <div className="absolute top-3 left-3 z-[3] rounded-lg bg-red-500/90 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white sm:top-4 sm:left-4 sm:text-xs">
+                        Wrong form
+                      </div>
+                      <div className="absolute bottom-3 left-3 right-3 z-[3] sm:bottom-4 sm:left-4 sm:right-4">
+                        <div className="mb-1 text-[10px] font-mono uppercase tracking-widest text-red-300/80">AI detected</div>
+                        <div className="text-xs font-bold text-white/90 sm:text-sm">Elbows flaring · Hips sagging</div>
+                      </div>
+                    </div>
+
+                    <div className="relative overflow-hidden">
+                      <img
+                        src="/push_up.png"
+                        alt="AI-corrected push-up form"
+                        className="absolute inset-0 h-full w-full object-cover object-[58%_42%]"
+                      />
+                      <div className="absolute inset-0 bg-green-950/25 mix-blend-multiply" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      <PushUpSkeleton variant="correct" />
+                      <div className="absolute top-3 right-3 z-[3] rounded-lg bg-green-400 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black sm:top-4 sm:right-4 sm:text-xs">
+                        AI corrected
+                      </div>
+                      <div className="absolute bottom-3 left-3 right-3 z-[3] sm:bottom-4 sm:left-4 sm:right-4">
+                        <div className="mb-1 text-[10px] font-mono uppercase tracking-widest text-green-400/90">Live coaching</div>
+                        <div className="text-xs font-bold text-white sm:text-sm">
+                          Form score <span className="font-black text-green-400">94%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute top-1/2 left-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-green-400 bg-black shadow-[0_0_24px_rgb(var(--repvio-primary-rgb)/0.5)] sm:h-12 sm:w-12">
+                    <span className="text-lg font-black text-green-400">→</span>
+                  </div>
+                </div>
+                <div className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/10 sm:rounded-[2.5rem]" />

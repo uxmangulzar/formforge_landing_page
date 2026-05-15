@@ -1,0 +1,30 @@
+import fs from 'fs'
+
+const block = `          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+            {features.map((feature) => {
+              const FeatureIcon = feature.icon
+              return (
+                <motion.div
+                  key={feature.title}
+                  className="group relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border border-white/10 bg-zinc-900/50 backdrop-blur-sm p-6 sm:p-8 transition-all duration-500 hover:border-green-400/25 hover:bg-zinc-900/70"
+                >
+                  <div className={\`absolute inset-0 bg-gradient-to-br \${feature.accent} opacity-80 pointer-events-none\`} />
+                  <div className="relative z-10">
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-400/10 border border-green-400/20 text-green-400 transition-transform duration-500 group-hover:scale-105 group-hover:bg-green-400/15">
+                      <FeatureIcon size={26} strokeWidth={2.25} />
+                    </motion.div>
+                    <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2 group-hover:text-green-400 transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-base sm:text-lg text-white/55 leading-relaxed">
+                      {feature.desc}
+                    </p>
+                  </motion.div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+`
+
+const fixed = block.replaceAll('<motion.div', '<div').replaceAll('</motion.div>', '</div>')
+fs.writeFileSync('d:/repvio_landing pag/formforge_landing_page/scripts/features-section-block.txt', fixed)
