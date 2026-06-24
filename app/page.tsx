@@ -53,7 +53,7 @@ export default function FormForgeAILandingPage() {
 
     setIsLoading(true)
     try {
-      const response = await api.post('/users/join', {
+      const response = await api.post('/waitlist/join', {
         email,
         device,
         interest,
@@ -106,7 +106,7 @@ export default function FormForgeAILandingPage() {
 
     setIsStatusLoading(true)
     try {
-      const response = await api.get(`/users/status/${statusEmail}`)
+      const response = await api.get(`/waitlist/status/${statusEmail}`)
       if (response.data.success) {
         setStatusData(response.data.data)
         toast.success('Waitlist status retrieved!')
@@ -1198,8 +1198,11 @@ export default function FormForgeAILandingPage() {
           </div>
 
           <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
+            {/* <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
               © 2026 <a href="https://codesteem.com" target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-400 transition-colors">Codesteem</a>. All rights reserved.
+            </div> */}
+             <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
+              © 2026 <span className="text-green-400 hover:text-green-400 transition-colors">Repvio Fit</span>. All rights reserved.
             </div>
             {/* <div className="flex gap-8 text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
                <span>v0.12.0_Beta</span>
