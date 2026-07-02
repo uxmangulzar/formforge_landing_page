@@ -193,18 +193,25 @@
 }
 
 .reveal {
-  opacity: 0;
+  opacity: 1;
   transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  pointer-events: none;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 480px;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: auto;
 }
 
 .reveal.is-visible {
-  opacity: 1;
   transform: translateY(0);
-  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transform: none;
+    transition: none;
+  }
+
+  .hero-skeleton-pulse {
+    animation: none;
+  }
 }
 
 @keyframes pan-bg {

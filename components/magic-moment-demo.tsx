@@ -13,36 +13,43 @@ const STEPS: { label: string; icon: LucideIcon }[] = [
 export function MagicMomentDemo() {
   const [magicMomentStep, setMagicMomentStep] = useState(0)
   const [heroScore, setHeroScore] = useState(62)
+  const [isVisible, setIsVisible] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
   const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([])
 
   useEffect(() => {
-    const start = () => {
-      intervalsRef.current.push(
-        setInterval(() => setMagicMomentStep((s) => (s + 1) % 4), 1100),
-        setInterval(() => setHeroScore((s) => (s >= 94 ? 62 : s + 2)), 1200),
-      )
-    }
+    const el = rootRef.current
+    if (!el) return
 
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '100px', threshold: 0.15 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const stop = () => {
       intervalsRef.current.forEach(clearInterval)
       intervalsRef.current = []
     }
 
-    const onVisibility = () => {
+    if (!isVisible || document.hidden) {
       stop()
-      if (!document.hidden) start()
+      return
     }
 
-    if (!document.hidden) start()
-    document.addEventListener('visibilitychange', onVisibility)
-    return () => {
-      stop()
-      document.removeEventListener('visibilitychange', onVisibility)
-    }
-  }, [])
+    intervalsRef.current.push(
+      setInterval(() => setMagicMomentStep((s) => (s + 1) % 4), 1100),
+      setInterval(() => setHeroScore((s) => (s >= 94 ? 62 : s + 2)), 1200),
+    )
+
+    return stop
+  }, [isVisible])
 
   return (
-    <div className="relative max-w-5xl mx-auto">
+    <div ref={rootRef} className="relative max-w-5xl mx-auto">
       <div className="hidden sm:block absolute top-11 left-[10%] right-[10%] h-px bg-white/10" aria-hidden />
       <div
         className="hidden sm:block absolute top-11 left-[10%] h-px bg-gradient-to-r from-green-400 via-yellow-400 to-green-400 transition-all duration-700 ease-out"
@@ -76,7 +83,7 @@ export function MagicMomentDemo() {
                       : 'bg-white/5 text-white/40'
                 }`}
               >
-                <StepIcon size={22} strokeWidth={2.5} className={isActive ? 'animate-pulse' : ''} />
+                <StepIcon size={22} strokeWidth={2.5} className={isActive ? 'max-md:opacity-90 md:animate-pulse' : ''} />
               </div>
               <div
                 className={`text-[10px] font-mono uppercase tracking-widest mb-1.5 ${

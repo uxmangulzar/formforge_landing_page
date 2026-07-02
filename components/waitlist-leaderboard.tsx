@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Trophy, Loader2, Medal } from 'lucide-react'
-import api from '@/utils/api'
 
 const LEADERBOARD_SYNC_MS = 30_000
 
@@ -18,6 +17,7 @@ export function WaitlistLeaderboard() {
     const fetchLeaderboard = async () => {
       if (!inViewRef.current || document.hidden) return
       try {
+        const api = (await import('@/utils/api')).default
         const response = await api.get('/waitlist/leaderboard')
         if (!cancelled && response.data.success) {
           setLeaderboard(response.data.data)
@@ -81,14 +81,14 @@ export function WaitlistLeaderboard() {
         </div>
       </div>
 
-      <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] overflow-hidden">
+      <div className="min-h-[22.5rem] bg-white/[0.02] border border-white/5 rounded-[2rem] overflow-hidden">
         {isLeaderboardLoading ? (
-          <div className="py-20 flex flex-col items-center justify-center gap-4 text-white/20">
+          <div className="flex min-h-[22.5rem] flex-col items-center justify-center gap-4 text-white/20">
             <Loader2 className="animate-spin" size={24} />
             <span className="text-[10px] font-bold uppercase tracking-widest">Loading Rankings...</span>
           </div>
         ) : leaderboard.length > 0 ? (
-          <div className="divide-y divide-white/5">
+          <div className="min-h-[22.5rem] divide-y divide-white/5">
             {leaderboard.slice(0, 5).map((user, idx) => (
               <div
                 key={`${user.referralCode}-${idx}`}
@@ -128,7 +128,7 @@ export function WaitlistLeaderboard() {
             ))}
           </div>
         ) : (
-          <div className="py-12 text-center text-white/20 text-[10px] font-bold uppercase tracking-widest">
+          <div className="flex min-h-[22.5rem] items-center justify-center py-12 text-center text-white/20 text-[10px] font-bold uppercase tracking-widest">
             Leaderboard empty. Be the first to lead!
           </div>
         )}
